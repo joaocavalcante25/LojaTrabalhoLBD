@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $telefone
  * @property int $id_pessoa
  * 
- * @property Pessoa $pessoa
+ * @property User $user
  * @property Collection|Venda[] $vendas
  *
  * @package App\Models
@@ -45,9 +45,9 @@ class Funcionario extends Model
 		'id_pessoa'
 	];
 
-	public function pessoa()
+	public function user()
 	{
-		return $this->belongsTo(Pessoa::class, 'id_pessoa');
+		return $this->belongsTo(User::class, 'id_pessoa');
 	}
 
 	public function vendas()

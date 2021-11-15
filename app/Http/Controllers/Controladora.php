@@ -11,77 +11,104 @@ use App\Models\Pedido;
 use App\Models\Produto;
 use App\Models\Venda;
 use App\Models\VendaPedido;
+use App\Models\User;
 
 class Controladora extends Controller
 {
     //
-    public function cadastroCliente(Request $requets){
+    public function cadastroCliente(Request $requests){
 
         $cpf = $requests->cpf;
         $nome = $requests->nome;
-        $pessoa = Pessoa::create([
-            'cpf' => $cpf,
-            'nome' => $nome,
-        ]);
-
-        $pessoa->save();
-
-        $cliente = Cliente::create([
-            "data_cadastro" => date('Y-m-d'),
-            "id_pessoa" => $pessoa->id,
-        ]);
-        $cliente->save();
-
-
-        return view('pgSucesso', ['success'=>TRUE]);
-
-
-    }
-
-    public function cadastroFuncionario(Request $requets){
-
-        $cpf = $requests->cpf;
-        $nome = $requests->nome;
-        if(is_string($cpf) and is_string($nome)){
-            $pessoa = Pessoa::create([
-                'cpf' => $cpf,
-                'nome' => $nome,
+        $email = $requests->email;
+        $senha = $requests->senha;
+        $segsenha = $requests->segsenha;
+        if(is_string($cpf) and is_string($nome) and $segsenha === $senha){
+            try{
+                $pessoa = User::create([
+                    'cpf' => $cpf,
+                    'name' => $nome,
+                    'email'=>$email,
+                    'password'=>$senha
+                ]);
+                $pessoa->save();
+            }catch(Exeption $e){
+                return view('viewCadastro', ['status'=>false, 'massage'=>'usuario já existe']);
+            }
+        }else{
+            return view('viewCadastro', ['status'=>false]);
+        }
+        try{
+            $cliente = Cliente::create([
+                "data_cadastro" => date('Y-m-d'),
+                "id_pessoa" => $pessoa->id,
             ]);
-            $pessoa->save();
+            $cliente->save();
+            return view('viewCadastro', ['status'=>true]);
+        }
+        catch(Exception $e){
+            return view('viewCadastro', ['status'=>true, "message"=>$e->getMessage()]);
         }
 
-        $funcionario = Funcionario::create([
-            "data_trabalho" => date('Y-m-d'),
-        ]);
+    }
 
-        $funcionario->save();
+    public function createFuncionario(Request $requests){
 
-
-        return view('pgcSucesso', ['success'=>TRUE]);
+        $email = $requests->email;
+        $cpf = $requests->cpf;
+        $nome = $requests->nome;
+        $telefone = $requests->telefone;
+        $endereco = $requests->endereco;
+        $senha = $requests->senha;
+        $segsenha = $requests->segsenha;
+        if(is_string($cpf) and is_string($nome) and $segsenha === $senha){
+            $pessoa = User::create([
+                'cpf' => $cpf,
+                'name' => $nome,
+                'email'=>$email,
+                'password'=>$senha
+            ]);
+            $pessoa->save();
+        }else{
+            return view('cadastroFuncionario', ['status'=>false]);
+        }
+        if(is_string($telefone) and is_string($endereco)){
+            $funcionario = Funcionario::create([
+                "telefone"=>$telefone,
+                "data_trabalho" => date('Y-m-d'),
+                "id_pessoa"=>$pessoa->id,
+                "endereco"=>$endereco
+            ]);
+            $funcionario->save();
+            return view('cadastroFuncionario', ['status'=>true]);
+        }else{
+            return view('cadastroFuncionario', ['status'=>false]);
+        }
 
 
     }
 
 
-    public function cadastraProduto(Request $requets){
+    public function cadastraProduto(Request $requests){
         $nome = $requests->nome;
-        $preco = $requests->preco;
-        $qtd_estoque = $requests->qtd_estoque;
-        $tamanho = $requests->tamanho;
+        $preco = (float)$requests->preco;
+        $qtd_estoque = (int)$requests->qtd_estoque;
+        $tamanho = (int)$requests->tamanho;
 
-        if (is_string($nome) and is_float($preco) and is_numeric($qtd_estoque) and is_numeric($tamanho)){
-            $produto = Produto::crete([
+        if (is_string($nome) and $qtd_estoque > 0 and is_float($preco) and $tamanho > 0 and is_numeric($qtd_estoque) and is_numeric($tamanho)){
+            $produto = Produto::create([
                 "nome"=>$nome,
                 "preco"=>$preco,
                 "qtd_estoque"=>$qtd_estoque,
                 "tamanho"=>$tamanho,
             ]); 
+
             $produto->save();
-            return view('pgProduto', []);
+            return view('viewCadastroProduto', ['status'=>true]);
 
         }
         else{
-            return view('pgProduto', []);
+            return view('viewCadastroProduto', ['status'=>false]);
         }
 
     }
@@ -117,4 +144,72 @@ class Controladora extends Controller
 
         
     }
+
+    public function getProduto(Request $requests){
+
+        return view('viewProduto', ['produtos'=>Produto::all()]) ;
+    }
+
+    public function getClientes(Request $requests){
+        $clientes = Cliente::all();
+        $lista = [];
+        foreach($clientes as $cliente){
+            $pessoa = User::where('id',$cliente->id_pessoa)->get()[0];
+            $pessoa = ["cpf"=>$pessoa->cpf, "email"=>$pessoa->email, "nome"=>$pessoa->name, "id"=>$cliente->id];
+            array_push($lista, $pessoa);
+        }
+
+
+        return view('viewCliente', ['clientes'=>$lista]) ;
+    }
+
+    public function getFuncionarios(Request $requests){
+        $clientes = Funcionario::all();
+        $lista = [];
+        foreach($clientes as $cliente){
+            $pessoa = User::where('id',$cliente->id_pessoa)->get()[0];
+            $pessoa = ["cpf"=>$pessoa->cpf,"endereco"=> $cliente->endereco,"telefone"=>$cliente->telefone,"email"=>$pessoa->email, "nome"=>$pessoa->name, "id"=>$cliente->id];
+            array_push($lista, $pessoa);
+        }
+        return view('viewColaborador', ['colaboradores'=>$lista]) ;
+    }
+
+    public function deletProduct($id){
+        $produto = Produto::find($id);
+        if(!is_null($produto)){
+            $produto->delete();
+            
+        }
+        return view('viewProduto', ['produtos'=>Produto::all()]);
+    }
+
+
+    public function updateProduto(Request $requests, $id){
+        $nome = $requests->nome;
+        $preco = (float) $requests->preco;
+        $quantidade =(int) $requests->qtd_estoque;
+        $tamanho = (int)$requests->tamanho;
+        $produto = Produto::find($id);
+        if(!is_null($produto)){
+            $produto->nome = $nome;
+            $produto->preco = $preco;
+            $produto->qtd_estoque = $quantidade;
+            $produto->tamanho = $quantidade;
+            $produto->save();
+        }
+        return view('viewProduto', ['produtos'=>Produto::all()]);
+    }
+
+    public function addProduct(Request $request){
+        $minutes = 60;
+        Cookie::queue('produtos', $request->test, 10);
+        $response->withCookie(cookie('produtos', 'MyValue', $minutes));
+        return $response;
+    }
+
+    public function getProduct(Request $request){
+        $value = $request->cookie('produtos');
+        echo $value;
+    }
+
 }

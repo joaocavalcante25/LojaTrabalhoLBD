@@ -19,15 +19,15 @@ class CriarTabelaFuncionario extends Migration
                 $table->timestamps();
                 $table->date('data_trabalho')->nullable();
                 $table->string('endereco');
-                $table->char('telefone', 11);
+                $table->string('telefone');
                 
             });
         }
 
-        if (Schema::hasTable('pessoa')){
+        if (Schema::hasTable('users')){
             Schema::table('funcionario', function (Blueprint $table) {
                 $table->unsignedBigInteger('id_pessoa');
-                $table->foreign('id_pessoa')->references('id')->on('pessoa');
+                $table->foreign('id_pessoa')->references('id')->on('users');
             });
         }
     }

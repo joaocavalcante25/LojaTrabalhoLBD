@@ -22,10 +22,10 @@ class CriarTabelaCliente extends Migration
             });
         }
 
-        if (Schema::hasTable('pessoa')){
+        if (Schema::hasTable('users')){
             Schema::table('cliente', function (Blueprint $table) {
                 $table->unsignedBigInteger('id_pessoa');
-                $table->foreign('id_pessoa')->references('id')->on('pessoa');
+                $table->foreign('id_pessoa')->references('id')->on('users');
             });
         }
         

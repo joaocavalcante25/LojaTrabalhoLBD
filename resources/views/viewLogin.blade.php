@@ -24,7 +24,7 @@
 					</div>
 				</div>
 				<div class="d-flex justify-content-center form_container">
-					<form method="GET" action="">
+					<form method="post" action="{{ Route('cadastrar.pessoa') }}">
 						<div class="input-group mb-3">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -43,15 +43,15 @@
 								<label class="custom-control-label" for="customControlInline">Lembrar de mim</label>
 							</div>
 						</div>
-							<div class="d-flex justify-content-center mt-3 login_container">
-				 	<button type="submit" name="button" class="btn login_btn">Entrar</button>
-				   </div>
+						<div class="d-flex justify-content-center mt-3 login_container">
+				 			<button type="submit" name="button" class="btn login_btn">Entrar</button>
+				   		</div>
 					</form>
 				</div>
 		
 				<div class="mt-4">
 					<div class="d-flex justify-content-center links">
-						Não tem uma conta? <a href="#" class="ml-2">Cadastrar-se</a>
+						Não tem uma conta? <a href="/cadastro" class="ml-2">Cadastrar-se</a>
 					</div>
 					<div class="d-flex justify-content-center links">
 						<a href="#">Esqueceu sua senha?</a>
