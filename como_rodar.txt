@@ -1,0 +1,31 @@
+
+
+nesseçaria a instalação da linguagem php
+nesseçarios a instalação do Framework Laravel
+nesseçario um servidor de banco de dados 
+
+
+va ate o aquivo .env e configure
+uma conecção com a base de dados 
+atribuindo os devidos parametros de conecção
+alterando as variaveis:
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=trabalholbd
+DB_USERNAME=root
+DB_PASSWORD=
+
+logo após rode o comando:
+
+php artisan migrate:fresh 
+
+logo após rode o comando:
+
+php artisan serve
+
+o codigo vai gerar um link 
+acesse esse link
+normalmente: 
+http://127.0.0.1:8000/
